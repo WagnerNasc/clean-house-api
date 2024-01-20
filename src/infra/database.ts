@@ -1,25 +1,19 @@
-import { Client } from 'pg'
+import { Pool } from 'pg'
 
-class Database {
-  private static instance: Database
-  public client: Client
-  constructor() {
-    this.client = new Client({
-      user: 'docker',
-      database: 'clean-house',
-      port: 5432,
-      password: 'docker',
-      host: 'localhost',
-    })
-  }
-  public static getInstance(): Database {
-    if(!Database.instance) {
-      Database.instance = new Database() 
-      Database.instance.client.connect()
+export class Database {
+  private static pool: Pool
+
+  public static getPool(): Pool {
+    if (!Database.pool) {
+      Database.pool = new Pool({
+        user: 'docker',
+        database: 'clean-house',
+        port: 5432,
+        password: 'docker',
+        host: 'localhost',
+      })
     }
 
-    return Database.instance
+    return Database.pool
   }
 }
-
-export default Database.getInstance()

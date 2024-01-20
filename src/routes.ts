@@ -1,10 +1,13 @@
-
 import express from 'express'
-import customerController from './customer/controllers/customer.controller'
+import { CustomerController } from './controllers/customer.controller'
 
 const routes = express.Router()
 
-routes.get('/customers', customerController.listCustomers)
-routes.get('/customerCreate', customerController.createCustomer)
+routes.get('/customers', CustomerController.listCustomers)
+routes.get(
+  '/customer-addresses',
+  CustomerController.listCustomerAddressesSorted,
+)
+routes.post('/customer', CustomerController.createCustomer)
 
 export default routes

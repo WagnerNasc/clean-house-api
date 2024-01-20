@@ -1,3 +1,6 @@
-import app from "./app"
+import app from './app'
+import { env } from './env'
 
-app.listen(3000)
+app.listen(env.PORT, () => {
+  console.log(`Server running!`)
+})
