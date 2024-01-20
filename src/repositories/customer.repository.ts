@@ -32,19 +32,58 @@ export class CustomerRepository implements ICustomerRepository {
     }
   }
 
-  async findMany(): Promise<Customer[] | []> {
+  async findManyWithFilter(
+    page: number,
+    filter?: string,
+  ): Promise<{ data: Customer[]; total: number }> {
     try {
-      const queryResult = await this.pool.query(`
-      SELECT
+      let query = `
+        SELECT
           c.name,
           c.phone,
           c.email
-      FROM
+        FROM
           customers c
-      `)
+      `
+
+      if (filter) {
+        query += `
+          WHERE 
+            c.name ILIKE '%${filter}%' OR 
+            c.email ILIKE '%${filter}%'
+        `
+      }
+
+      const offset = (page - 1) * 10
+
+      query += `
+        LIMIT 10
+        OFFSET ${offset}
+      `
+
+      const countQuery = `
+        SELECT 
+          COUNT(*) as total 
+        FROM 
+          customers
+        ${
+          filter
+            ? `
+          WHERE 
+            name ILIKE '%${filter}%' OR 
+            email ILIKE '%${filter}%'
+          `
+            : ''
+        }
+      `
+
+      const countResult = await this.pool.query(countQuery)
+      const total = parseInt(countResult.rows[0].total, 10)
+
+      const queryResult = await this.pool.query(query)
       const customers: Customer[] = queryResult.rows
 
-      return customers
+      return { data: customers, total }
     } catch (error) {
       console.error('Error to list customer:', error)
       throw error

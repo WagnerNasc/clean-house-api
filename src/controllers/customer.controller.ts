@@ -8,8 +8,17 @@ import { makeListCustomerAddressUseCase } from '../use-cases/factories/make-list
 export class CustomerController {
   static async listCustomers(req: Request, res: Response) {
     try {
+      const registerQuerySchema = z.object({
+        filter: z.string().optional(),
+        page: z.coerce.number().min(1).default(1),
+      })
+
+      const { filter, page } = registerQuerySchema.parse(req.query)
       const listCustomerUseCase = makeListCustomerUseCase()
-      const customer = await listCustomerUseCase.execute()
+      const customer = await listCustomerUseCase.execute({
+        filter,
+        page,
+      })
 
       return res.json(customer)
     } catch (error) {
