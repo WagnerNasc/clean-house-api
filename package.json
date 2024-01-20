@@ -7,7 +7,7 @@
     "node": "20.10"
   },
   "scripts": {
-    "start:dev": "npx nodemon",
+    "dev": "npx nodemon",
     "start": "node build/server.js"
   },
   "keywords": [],

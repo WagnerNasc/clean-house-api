@@ -11,5 +11,5 @@ This project aims to provide customer data and map routes to the customer's home
 
 3. Running application:
      ```shell
-     npm run start:dev
+     npm run dev
      ```
