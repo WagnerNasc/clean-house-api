@@ -1,0 +1,15 @@
+# docker run --name clean-house-db -e POSTGRES_USER=docker -e 
+# POSTGRES_PASSWORD=docker -e POSTGRES_DB=clean-house -p 5432:5432 postgis/postgis
+
+version: '3'
+
+services:
+  clean-house-db:
+    image: postgis/postgis
+    container_name: clean-house-db
+    environment:
+      POSTGRES_USER: docker
+      POSTGRES_PASSWORD: docker
+      POSTGRES_DB: clean-house
+    ports:
+      - "5432:5432"

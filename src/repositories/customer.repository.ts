@@ -39,18 +39,18 @@ export class CustomerRepository implements ICustomerRepository {
     try {
       let query = `
         SELECT
-          c.name,
-          c.phone,
-          c.email
+          name,
+          phone,
+          email
         FROM
-          customers c
+          customers
       `
 
       if (filter) {
         query += `
           WHERE 
-            c.name ILIKE '%${filter}%' OR 
-            c.email ILIKE '%${filter}%'
+            (name ILIKE '%${filter}%' OR 
+            email ILIKE '%${filter}%')
         `
       }
 
@@ -70,8 +70,8 @@ export class CustomerRepository implements ICustomerRepository {
           filter
             ? `
           WHERE 
-            name ILIKE '%${filter}%' OR 
-            email ILIKE '%${filter}%'
+            (name ILIKE '%${filter}%' OR 
+            email ILIKE '%${filter}%')
           `
             : ''
         }
