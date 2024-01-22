@@ -1,5 +1,5 @@
 import { ICustomerAddressRepository } from '@/repositories/interfaces/customer-address-repository-interface'
-import { CustomerAddress } from './interfaces/customer-address-interface'
+import { CustomerAddress } from '../interfaces/customer-address-interface'
 
 export class ListCustomerAddressSortedUseCase {
   constructor(private customerAddressRepository: ICustomerAddressRepository) {}

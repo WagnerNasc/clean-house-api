@@ -1,4 +1,4 @@
-import { Customer } from './interfaces/customer-interface'
+import { Customer } from '../interfaces/customer-interface'
 import { ICustomerRepository } from '@/repositories/interfaces/customer-repository-interface'
 
 interface ListCustomerUseCaseRequest {
