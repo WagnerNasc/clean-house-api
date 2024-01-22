@@ -1,6 +1,7 @@
 import { Pool } from 'pg'
 import { ICustomerAddressRepository } from './interfaces/customer-address-repository-interface'
 import { CustomerAddress } from '@/use-cases/interfaces/customer-address-interface'
+import { Customer } from '../use-cases/interfaces/customer-interface'
 import { randomUUID as uuid } from 'crypto'
 
 export class CustomerAddressRepository implements ICustomerAddressRepository {
@@ -41,7 +42,7 @@ export class CustomerAddressRepository implements ICustomerAddressRepository {
     }
   }
 
-  async create(customerAddress: CustomerAddress): Promise<void> {
+  async create(customerAddress: CustomerAddress): Promise<Customer> {
     const client = await this.pool.connect()
     try {
       await client.query('BEGIN')
@@ -50,18 +51,21 @@ export class CustomerAddressRepository implements ICustomerAddressRepository {
       const customerQuery = {
         text: `
           INSERT INTO customers (id, name, email, phone) 
-          VALUES ($1, $2, $3, $4)`,
+          VALUES ($1, $2, $3, $4)
+          RETURNING *`,
         values: [
-          customerAddress.id,
+          customerId,
           customerAddress.name,
           customerAddress.email,
           customerAddress.phone,
         ],
       }
 
-      await client.query(customerQuery)
+      const customerResult = await client.query(customerQuery)
 
       await client.query('COMMIT')
+
+      const customer: Customer = customerResult.rows[0]
 
       const customerAddressQuery = {
         text: `
@@ -84,6 +88,13 @@ export class CustomerAddressRepository implements ICustomerAddressRepository {
       await client.query(customerAddressQuery)
 
       await client.query('COMMIT')
+
+      return {
+        id: customer.id,
+        name: customer.name,
+        email: customer.email,
+        phone: customer.phone,
+      }
     } catch (error) {
       await client.query('ROLLBACK')
       console.error('Error to create customer address:', error)

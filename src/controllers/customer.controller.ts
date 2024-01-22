@@ -108,7 +108,7 @@ export class CustomerController {
 
       const createCustomerUseCase = makeCreateAddressCustomerUseCase()
 
-      await createCustomerUseCase.execute({
+      const customer = await createCustomerUseCase.execute({
         name,
         email,
         phone,
@@ -122,9 +122,7 @@ export class CustomerController {
         longitude,
       })
 
-      return res.status(204).json({
-        message: 'created successfully.',
-      })
+      return res.json(customer)
     } catch (error) {
       if (error instanceof CustomerAlreadyExists) {
         return res.status(409).send({ message: error.message })

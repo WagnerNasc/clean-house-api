@@ -2,6 +2,7 @@ import { CustomerAlreadyExists } from '../errors/customer-alredy-exists'
 import { ICustomerAddressRepository } from '@/repositories/interfaces/customer-address-repository-interface'
 import { ICustomerRepository } from '@/repositories/interfaces/customer-repository-interface'
 import { CustomerAddress } from '../interfaces/customer-address-interface'
+import { Customer } from '../interfaces/customer-interface'
 import { randomUUID as uuid } from 'crypto'
 import { OmitProps } from '@/helpers/Omit'
 
@@ -11,7 +12,9 @@ export class CreateCustomerAddressUseCase {
     private customerRepository: ICustomerRepository,
   ) {}
 
-  public async execute(customerAddress: OmitProps<CustomerAddress, 'id'>) {
+  public async execute(
+    customerAddress: OmitProps<CustomerAddress, 'id'>,
+  ): Promise<Customer> {
     const userWithSameEmail = await this.customerRepository.findByEmail(
       customerAddress.email,
     )
@@ -25,6 +28,9 @@ export class CreateCustomerAddressUseCase {
       ...customerAddress,
     }
 
-    await this.customerAddressRepository.create(newCustomerAddress)
+    const customer =
+      await this.customerAddressRepository.create(newCustomerAddress)
+
+    return customer
   }
 }
