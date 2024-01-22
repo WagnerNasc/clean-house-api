@@ -1,6 +1,7 @@
 import { Pool } from 'pg'
 import { ICustomerAddressRepository } from './interfaces/customer-address-repository-interface'
-import { CustomerAddress } from '@/use-cases/customer/interfaces/customer-address-interface'
+import { CustomerAddress } from '@/use-cases/interfaces/customer-address-interface'
+import { randomUUID as uuid } from 'crypto'
 
 export class CustomerAddressRepository implements ICustomerAddressRepository {
   private pool: Pool
@@ -13,6 +14,7 @@ export class CustomerAddressRepository implements ICustomerAddressRepository {
     try {
       const queryResult = await this.pool.query(`
         SELECT
+            c.id,
             c.name,
             c.phone,
             c.email,
@@ -27,7 +29,7 @@ export class CustomerAddressRepository implements ICustomerAddressRepository {
         FROM
             customers c
         JOIN
-            addresses a ON c.id = a.customer_id
+            customer_addresses a ON c.id = a.customer_id
         order by distance;
       `)
       const customers: CustomerAddress[] = queryResult.rows
@@ -36,6 +38,58 @@ export class CustomerAddressRepository implements ICustomerAddressRepository {
     } catch (error) {
       console.error('Error to list customer:', error)
       throw error
+    }
+  }
+
+  async create(customerAddress: CustomerAddress): Promise<void> {
+    const client = await this.pool.connect()
+    try {
+      await client.query('BEGIN')
+
+      const customerId = uuid()
+      const customerQuery = {
+        text: `
+          INSERT INTO customers (id, name, email, phone) 
+          VALUES ($1, $2, $3, $4)`,
+        values: [
+          customerAddress.id,
+          customerAddress.name,
+          customerAddress.email,
+          customerAddress.phone,
+        ],
+      }
+
+      await client.query(customerQuery)
+
+      await client.query('COMMIT')
+
+      const customerAddressQuery = {
+        text: `
+          INSERT INTO customer_addresses (id, customer_id, street, number, neighborhood, city, state, postal_code, latitude, longitude) 
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+        values: [
+          customerAddress.id,
+          customerId,
+          customerAddress.street,
+          customerAddress.number,
+          customerAddress.neighborhood,
+          customerAddress.city,
+          customerAddress.state,
+          customerAddress.postal_code,
+          customerAddress.latitude,
+          customerAddress.longitude,
+        ],
+      }
+
+      await client.query(customerAddressQuery)
+
+      await client.query('COMMIT')
+    } catch (error) {
+      await client.query('ROLLBACK')
+      console.error('Error to create customer address:', error)
+      throw error
+    } finally {
+      client.release()
     }
   }
 }

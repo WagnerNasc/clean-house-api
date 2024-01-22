@@ -1,4 +1,4 @@
-import { Customer } from '@/use-cases/customer/interfaces/customer-interface'
+import { Customer } from '@/use-cases/interfaces/customer-interface'
 
 export interface ICustomerRepository {
   findByEmail(email: string): Promise<Customer | null>

@@ -1,7 +1,6 @@
 import { Pool } from 'pg'
-import { Customer } from '../use-cases/customer/interfaces/customer-interface'
+import { Customer } from '../use-cases/interfaces/customer-interface'
 import { ICustomerRepository } from './interfaces/customer-repository-interface'
-import { randomUUID as uuid } from 'crypto'
 
 export class CustomerRepository implements ICustomerRepository {
   private pool: Pool
@@ -39,6 +38,7 @@ export class CustomerRepository implements ICustomerRepository {
     try {
       let query = `
         SELECT
+          id,
           name,
           phone,
           email
@@ -57,6 +57,7 @@ export class CustomerRepository implements ICustomerRepository {
       const offset = (page - 1) * 10
 
       query += `
+        ORDER BY created_at DESC
         LIMIT 10
         OFFSET ${offset}
       `
@@ -96,7 +97,7 @@ export class CustomerRepository implements ICustomerRepository {
         text: `
           INSERT INTO customers (id, name, email, phone) 
           VALUES ($1, $2, $3, $4)`,
-        values: [uuid(), customer.name, customer.email, customer.phone],
+        values: [customer.id, customer.name, customer.email, customer.phone],
       }
 
       await this.pool.query(query)
